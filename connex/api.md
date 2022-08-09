@@ -398,7 +398,7 @@ Returns [VM.Clause](#vm-clause)
 // Convert 1 VeThor to VET, which needs to perform two action approve VeThor and convertForVET
 const dex = '0xD015D91B42BEd5FeaF242082b11B83B431abBf4f'
 const approveABI = {"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}
-const approveMethod = connex.thor.account('0x0000000000000000000000000000456E65726779').method(transferABI)
+const approveMethod = connex.thor.account('0x0000000000000000000000000000456E65726779').method(approveABI)
 const convertForVetABI= {"constant":false,"inputs":[{"name":"_sellAmount","type":"uint256"},{"name":"_minReturn","type":"uint256"}],"name":"convertForVET","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}
 const convertForVetMethod = connex.thor.account(dex).method(convertForVetABI)
 
@@ -872,7 +872,7 @@ Returns `Thor.Explainer`
 + `gasPrice` - `(gp: string): this`: Set gas price in hex string
 + `gasPayer` - `(addr: string):this`: Set gas payer
 + `cache` - `(hints: string[]): this`: Turn on caching for the explainer and set the condition of cache invalidation, read [more](#caching-a-contract-call).
-+ `execute`: execute to get the output
++ `execute` - `(): Promise<Array<VM.Output>>`: execute to get the output
 
 #### Execute the explainer
 
@@ -976,13 +976,9 @@ Returns `Connex.Vendor.TxSigningService` or `Connex.Vendor.CertSigningService`
 + `comment` - `(text: string): this`: Set the comment for the transaction that will be revealed to the user
 + `delegate` - `(url: string, signer: string): this`: Enable VIP-191 by setting the url and the fee payer's address. Wallets(Sync2) will request fee payer's signature with the url and required parameters, read [this](https://github.com/vechain/VIPs/blob/master/vips/VIP-201.md#explicit-grant-flow) to get the detail about building a VIP-191 service
 + `accepted` - `(cb: ()=>void): this`: Register a callback function which will be fired once user's wallet accepted the request
-+ `request`: Perform the request
++ `request` - `(): Promise<Connex.Vendor.TXResponse>`: Perform the request
 
 #### Perform Transaction Signing Request
-
-**Parameters**
-
-+ `msg` - `Array<TxMessage>`
 
 Returns `Promise<Connex.Vendor.TXResponse>:`
 + `txid` - `string`: Transaction identifier
@@ -1011,6 +1007,7 @@ connex.vendor.sign('tx', [
 .gas(200000) // Set maximum gas
 .link('https://connex.vecha.in/{txid}') // User will be back to the app by the url https://connex.vecha.in/0xffff....
 .comment('Donate 100 VET and 1000 VeThor to the author of connex')
+.request()
 .then(result=>{
     console.log(result)
 })
@@ -1051,11 +1048,9 @@ The certificate is a message signing based mechanism which can easily request us
 + `signer` - `(addr: string): this`: Enforces the specified address to sign the certificate
 + `link` - `(url: string): this`: Set the link to reveal certificate-related information, the link will be used for connex to assemble a `callback url` by replacing the placeholder `{certid}` by `Certificate ID`, which is computed by `blake2b256(Certificate.encode(cert))`
 + `accepted` - `(cb: ()=>void): this`: Register a callback function which will be fired once user's wallet accepted the request
-+ `request`: Send the request
++ `request` - `(): Promise<Connex.Vendor.CertResponse>`: Send the request
 
 #### Perform Certificate Signing Request
-
-**Parameters**
 
 Returns `Promise<Connex.Vendor.CertResponse>`:
 + `annex`:
